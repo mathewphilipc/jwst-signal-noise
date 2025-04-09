@@ -6,8 +6,8 @@ import random
 
 sigma_read = 20.9
 
-#fits_image_filename = 'images/apR-a-28580010.fits'
-fits_image_filename = 'images/apR-a-28580052.fits'
+#fits_image_filename = '../blanton-project/images/apR-a-28580010.fits'
+fits_image_filename = '../blanton-project/images/apR-a-28580052.fits'
 print("Opening fits file...")
 hdul = fits.open(fits_image_filename)
 
