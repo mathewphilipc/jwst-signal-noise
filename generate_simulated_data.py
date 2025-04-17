@@ -3,7 +3,7 @@ import pandas as pd
 print("hello")
 
 freq = 100.0
-num_measurements = 100
+num_measurements = 101 # Includes measurements at exactly t=0.0 and t=1.0.
 read_noise = 0.0
 num_samples = 10000
 
