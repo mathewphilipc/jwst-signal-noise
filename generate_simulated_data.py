@@ -2,7 +2,7 @@ from src.simulate_lib import simulate_multiaccum
 import pandas as pd
 print("hello")
 
-freq = 1000000 # Mathematically makes sense to take floats, but suffices for our tests to restrict to integers
+freq = 10 # Mathematically makes sense to take floats, but suffices for our tests to restrict to integers
 num_measurements = 101 # Includes measurements at exactly t=0.0 and t=1.0.
 read_noise = 0.0
 num_samples = 10000 # Generally 10,000
