@@ -28,7 +28,8 @@ def fit_brandt_slope(data):
     ramp_result = fit_ramps(diffs = diffs, Cov = my_covar, sig=20.1, rescale=False)
     return ramp_result.countrate[0]
 
-df = pd.read_csv("data/poisson_simulations/freq_100_read_noise_0/simulations.csv", index_col=0)
+true_freq = 1000000
+df = pd.read_csv(f"data/poisson_simulations/freq_{true_freq}_read_noise_0/simulations.csv", index_col=0)
 num_exps = len(df.columns)
 ols_slopes = []
 ols_intercepts = []
