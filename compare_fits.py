@@ -5,31 +5,28 @@ import matplotlib.pyplot as plt
 import math
 import statistics
 
-
+# Estimate slope naively
 def fit_naive_slope(data):
-    # Estimate slope naively
     num_measurements = len(data)
     diff = data[num_measurements - 1] - data[0]
     return diff / (num_measurements - 1)
 
+# Estimate slope by OLS
 def fit_ols_slope(data):
-    # Estimate slope by OLS
     n = len(curr_data)
     X = np.vstack([np.linspace(1, n, n), np.ones(n)]).T
     ols_fit_params = np.linalg.lstsq(X, curr_data, rcond=None)[0] # (2,) nparr containing [slope, intercept]
-    ols_slopes.append(float(ols_fit_params[0]))
-    return float(ols_fit_params[1])
+    return float(ols_fit_params[0])
 
+# Estimate slope naively
 def fit_brandt_slope(data):
-    # Estimate slope by Brandt fitramp
     n = len(curr_data)
     my_covar = Covar([s for s in range(n)])
     diffs = np.ndarray(shape=(n-1,1), dtype=np.int64)
     for t in range(1,len(diffs)+1):
         diffs[t-1] = curr_data[t] - curr_data[t-1]
     ramp_result = fit_ramps(diffs = diffs, Cov = my_covar, sig=20.1, rescale=False)
-    brandt_fit_slope = ramp_result.countrate[0]
-    return brandt_fit_slope
+    return ramp_result.countrate[0]
 
 df = pd.read_csv("data/poisson_simulations/freq_100_read_noise_0/simulations.csv", index_col=0)
 num_exps = len(df.columns)
@@ -42,7 +39,7 @@ for i in range(num_exps):
     curr_data = df.iloc[:, i].tolist()
     if (i%100==0):
         print("Studying sample", i)
-    ols_intercepts.append(fit_ols_slope(curr_data))
+    ols_slopes.append(fit_ols_slope(curr_data))
     brandt_slopes.append(fit_brandt_slope(curr_data))
     naive_slopes.append(fit_naive_slope(curr_data))
 
