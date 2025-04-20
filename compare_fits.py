@@ -47,11 +47,6 @@ args = parser.parse_args()
 true_freq = args.truefreq
 read_noise = args.readnoise
 
-print(f"true_freq = {true_freq}")
-print(f"read_noise = {read_noise}")
-
-#true_freq = 10000
-#read_noise = 1000
 df = pd.read_csv(f"data/poisson_simulations/freq_{true_freq}_read_noise_{read_noise}/simulations.csv", index_col=0)
 num_exps = len(df.columns)
 ols_slopes = []
