@@ -29,7 +29,8 @@ def simulate_multiaccum(freq, num_measurements, read_noise):
     exp_output = [0]
     for i in range(num_measurements - 1):
         exp_output.append(exp_output[i] + np.random.poisson(freq*dt))
-    exp_output = [round(x + np.random.normal(0, read_noise)) for x in exp_output]
+    # read_noise = scale = stdev of Gaussian noise
+    exp_output = [round(x + np.random.normal(loc=0, scale=read_noise)) for x in exp_output]
     return exp_output
 
 def empirical_ols_multiaccum_statistics(read_noise, freq, num_measurements, num_trials):
