@@ -4,6 +4,7 @@ from fitramp.fitramp import Covar, Ramp_Result, fit_ramps
 import matplotlib.pyplot as plt
 import math
 import statistics
+import argparse
 
 # Estimate slope naively
 def fit_naive_slope(data):
@@ -28,8 +29,30 @@ def fit_brandt_slope(data):
     ramp_result = fit_ramps(diffs = diffs, Cov = my_covar, sig=20.1, rescale=False)
     return ramp_result.countrate[0]
 
-true_freq = 10
-df = pd.read_csv(f"data/poisson_simulations/freq_{true_freq}_read_noise_0/simulations.csv", index_col=0)
+parser = argparse.ArgumentParser()
+parser.add_argument("--truefreq",
+                    type=int,
+                    required=True,
+                    help="True (simulated) frequency"
+)
+
+parser.add_argument("--readnoise",
+                    type=int, 
+                    required=True, 
+                    help="Standard deviation of simulated read noise"
+)
+
+args = parser.parse_args()
+
+true_freq = args.truefreq
+read_noise = args.readnoise
+
+print(f"true_freq = {true_freq}")
+print(f"read_noise = {read_noise}")
+
+#true_freq = 10000
+#read_noise = 1000
+df = pd.read_csv(f"data/poisson_simulations/freq_{true_freq}_read_noise_{read_noise}/simulations.csv", index_col=0)
 num_exps = len(df.columns)
 ols_slopes = []
 ols_intercepts = []
