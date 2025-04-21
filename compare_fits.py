@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import math
 import statistics
 import argparse
+import json
+import scipy
 
 
 parser = argparse.ArgumentParser()
@@ -51,7 +53,8 @@ def fit_brandt_slope(data):
 
 input_dir = "data/poisson_simulations/freq_" + str(true_freq) + "_read_noise_" + str(read_noise)
 input_file = input_dir + "/simulations.csv"
-#df = pd.read_csv(f"data/poisson_simulations/freq_{true_freq}_read_noise_{read_noise}/simulations.csv", index_col=0)
+output_file = input_dir + "/summary.json"
+
 df = pd.read_csv(input_file, index_col=0)
 num_exps = len(df.columns)
 ols_slopes = []
@@ -88,33 +91,71 @@ plt.ylabel('Frequency')
 plt.title('Distribution of naive-estimated slopes sans read noise')
 plt.show()
 
+# Summarize results, store as json
+
+output_data = {}
 
 print("\nOLS summary:")
 mean = statistics.mean(ols_slopes)
 stdev = statistics.stdev(ols_slopes)
 stderr = stdev / math.sqrt(len(ols_slopes) - 1)
+# One-sided significance of truefreq given measured mean + stderr
+z = (mean - true_freq/100.0) / stderr
+p = scipy.stats.norm.sf(abs(z))
+output_data["ols_mean"] = mean
+output_data["ols_stdev"] = stdev
+output_data["ols_stderr"] = stderr
+output_data["ols_z"] = z
+output_data["ols_p"] = p
 print(f"mean = {mean}")
 print(f"stdev = {stdev}")
 print(f"stderr = {stderr}")
+print(f"z = {z}")
+print(f"p = {p}")
 print(f"2-sigma confidence interval = [{mean - 2*stderr}, {mean + 2*stderr}]")
 
 print("\nBrandt summary:")
 mean = statistics.mean(brandt_slopes)
 stdev = statistics.stdev(brandt_slopes)
 stderr = stdev / math.sqrt(len(brandt_slopes) - 1)
+# One-sided significance of truefreq given measured mean + stderr
+z = (mean - true_freq/100.0) / stderr
+p = scipy.stats.norm.sf(abs(z))
+output_data["brandt_mean"] = mean
+output_data["brandt_stdev"] = stdev
+output_data["brandt_stderr"] = stderr
+output_data["brandt_z"] = z
+output_data["brandt_p"] = p
 print(f"mean = {mean}")
 print(f"stdev = {stdev}")
 print(f"stderr = {stderr}")
+print(f"z = {z}")
+print(f"p = {p}")
 print(f"2-sigma confidence interval = [{mean - 2*stderr}, {mean + 2*stderr}]")
 
 print("\nNaive summary:")
 mean = statistics.mean(naive_slopes)
 stdev = statistics.stdev(naive_slopes)
 stderr = stdev / math.sqrt(len(naive_slopes) - 1)
+# One-sided significance of truefreq given measured mean + stderr
+z = (mean - true_freq/100.0) / stderr
+p = scipy.stats.norm.sf(abs(z))
+output_data["naive_mean"] = mean
+output_data["naive_stdev"] = stdev
+output_data["naive_stderr"] = stderr
+output_data["naive_z"] = z
+output_data["naive_p"] = p
 print(f"mean = {mean}")
 print(f"stdev = {stdev}")
 print(f"stderr = {stderr}")
+print(f"z = {z}")
+print(f"p = {p}")
 print(f"2-sigma confidence interval = [{mean - 2*stderr}, {mean + 2*stderr}]")
 
 stdev_ratio = statistics.stdev(ols_slopes) / statistics.stdev(brandt_slopes)
 print(f"Ratio of OLS to Brandt spreads = {stdev_ratio}")
+
+json_object = json.dumps(output_data, indent=4)
+
+with open(output_file, "w") as outfile:
+    outfile.write(json_object)
