@@ -21,11 +21,16 @@ parser.add_argument("--readnoise",
                     required=True,
                     help="Standard deviation of simulated read noise"
 )
+parser.add_argument("--plot_distributions",
+                    action="store_true",
+                    help="Optionally plot fitted slope distributions"
+)
 
 args = parser.parse_args()
 
 true_freq = args.truefreq
 read_noise = args.readnoise
+plot_distributions = args.plot_distributions
 
 # Estimate slope naively
 def fit_naive_slope(data):
@@ -72,24 +77,24 @@ for i in range(num_exps):
 
 
 num_bins = 40
+if (plot_distributions):
+    plt.hist(ols_slopes, bins=num_bins)
+    plt.xlabel('OLS-estimated slope')
+    plt.ylabel('Frequency')
+    plt.title('Distribution of OLS-estimated slopes sans read noise')
+    plt.show()
 
-plt.hist(ols_slopes, bins=num_bins)
-plt.xlabel('OLS-estimated slope')
-plt.ylabel('Frequency')
-plt.title('Distribution of OLS-estimated slopes sans read noise')
-plt.show()
+    plt.hist(brandt_slopes, bins=num_bins)
+    plt.xlabel('Brandt-estimated slope')
+    plt.ylabel('Frequency')
+    plt.title('Distribution of Brandt-estimated slopes sans read noise')
+    plt.show()
 
-plt.hist(brandt_slopes, bins=num_bins)
-plt.xlabel('Brandt-estimated slope')
-plt.ylabel('Frequency')
-plt.title('Distribution of Brandt-estimated slopes sans read noise')
-plt.show()
-
-plt.hist(naive_slopes, bins=num_bins)
-plt.xlabel('Naive-estimated slope')
-plt.ylabel('Frequency')
-plt.title('Distribution of naive-estimated slopes sans read noise')
-plt.show()
+    plt.hist(naive_slopes, bins=num_bins)
+    plt.xlabel('Naive-estimated slope')
+    plt.ylabel('Frequency')
+    plt.title('Distribution of naive-estimated slopes sans read noise')
+    plt.show()
 
 # Summarize results, store as json
 
