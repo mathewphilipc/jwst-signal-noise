@@ -6,6 +6,25 @@ import math
 import statistics
 import argparse
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--truefreq",
+                    type=int,
+                    required=True,
+                    help="True (simulated) frequency"
+)
+
+parser.add_argument("--readnoise",
+                    type=int,
+                    required=True,
+                    help="Standard deviation of simulated read noise"
+)
+
+args = parser.parse_args()
+
+true_freq = args.truefreq
+read_noise = args.readnoise
+
 # Estimate slope naively
 def fit_naive_slope(data):
     num_measurements = len(data)
@@ -26,28 +45,14 @@ def fit_brandt_slope(data):
     diffs = np.ndarray(shape=(n-1,1), dtype=np.int64)
     for t in range(1,len(diffs)+1):
         diffs[t-1] = curr_data[t] - curr_data[t-1]
-    ramp_result = fit_ramps(diffs = diffs, Cov = my_covar, sig=20.1, rescale=False)
+    #sig = 20.1 for JWST images
+    ramp_result = fit_ramps(diffs = diffs, Cov = my_covar, sig=float(read_noise), rescale=True)
     return ramp_result.countrate[0]
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--truefreq",
-                    type=int,
-                    required=True,
-                    help="True (simulated) frequency"
-)
-
-parser.add_argument("--readnoise",
-                    type=int, 
-                    required=True, 
-                    help="Standard deviation of simulated read noise"
-)
-
-args = parser.parse_args()
-
-true_freq = args.truefreq
-read_noise = args.readnoise
-
-df = pd.read_csv(f"data/poisson_simulations/freq_{true_freq}_read_noise_{read_noise}/simulations.csv", index_col=0)
+input_dir = "data/poisson_simulations/freq_" + str(true_freq) + "_read_noise_" + str(read_noise)
+input_file = input_dir + "/simulations.csv"
+#df = pd.read_csv(f"data/poisson_simulations/freq_{true_freq}_read_noise_{read_noise}/simulations.csv", index_col=0)
+df = pd.read_csv(input_file, index_col=0)
 num_exps = len(df.columns)
 ols_slopes = []
 ols_intercepts = []
@@ -110,3 +115,6 @@ print(f"mean = {mean}")
 print(f"stdev = {stdev}")
 print(f"stderr = {stderr}")
 print(f"2-sigma confidence interval = [{mean - 2*stderr}, {mean + 2*stderr}]")
+
+stdev_ratio = statistics.stdev(ols_slopes) / statistics.stdev(brandt_slopes)
+print(f"Ratio of OLS to Brandt spreads = {stdev_ratio}")
