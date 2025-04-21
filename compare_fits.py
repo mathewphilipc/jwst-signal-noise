@@ -159,6 +159,7 @@ print(f"2-sigma confidence interval = [{mean - 2*stderr}, {mean + 2*stderr}]")
 
 stdev_ratio = statistics.stdev(ols_slopes) / statistics.stdev(brandt_slopes)
 print(f"Ratio of OLS to Brandt spreads = {stdev_ratio}")
+output_data["ols_brandt_spread_ratio"] = stdev_ratio
 
 json_object = json.dumps(output_data, indent=4)
 
