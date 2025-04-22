@@ -1,6 +1,7 @@
 from src.simulate_lib import simulate_multiaccum
 import pandas as pd
 import argparse
+import os
 
 parser = argparse.ArgumentParser()
 
@@ -32,5 +33,10 @@ for i in range(num_samples):
 df = pd.DataFrame(data).T
 print(df)
 
-
-df.to_csv(f"data/poisson_simulations/freq_{freq}_read_noise_{read_noise}/simulations.csv")
+output_dir = "data/poisson_simulations/freq_" + str(freq) + "_read_noise_" + str(read_noise)
+print(f"Output directory = {output_dir}")
+output_file = output_dir + "/simulations.csv"
+if not os.path.exists(output_dir):
+    print("Creating directory...")
+    os.makedirs(output_dir)
+df.to_csv(output_file)
