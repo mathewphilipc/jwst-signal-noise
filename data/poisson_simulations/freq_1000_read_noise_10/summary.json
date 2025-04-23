@@ -14,5 +14,6 @@
     "naive_stderr": 0.003473049546711082,
     "naive_z": -0.15807433571437532,
     "naive_p": 0.4371991117316949,
-    "ols_brandt_spread_ratio": 1.0653584115964412
+    "ols_brandt_spread_ratio": 1.0653584115964412,
+    "rms_slope_error": 0.024937952068161233
 }
