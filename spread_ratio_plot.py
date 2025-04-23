@@ -8,8 +8,8 @@ import argparse
 import json
 import scipy
 
-true_freq_list = [1, 10, 100, 1000, 10000]
-read_noise_list = [1, 10, 100, 1000, 10000]
+true_freq_list = [1, 3, 10, 30, 100, 300, 1000, 10000]
+read_noise_list = [1, 3, 10, 30, 100, 300, 1000, 10000]
 grid = np.zeros((len(true_freq_list), len(read_noise_list)))
 for i in range(len(true_freq_list)):
     freq = true_freq_list[i]
