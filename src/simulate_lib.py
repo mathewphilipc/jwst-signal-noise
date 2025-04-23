@@ -1,6 +1,7 @@
 import argparse
 import random
 import numpy as np
+from numpy.linalg import inv
 
 def simulate_multiaccum(freq, num_measurements, read_noise):
     """
@@ -90,3 +91,34 @@ def theoretical_ols_multiaccum_stddev(read_noise, freq, groups, frames_per_group
 
     return np.sqrt(first_term + second_term + third_term)
 
+def true_param_covariance(true_freq, read_noise, num_measurements):
+    """
+    Given a true frequency, a true read_noise, and a number of measurements
+    (taken to be uniform over a unit time interval, including at the boundaries
+    t=0.0 and t=1.0), computes (A^T C^{-1} A)^{-1} where A is the design matrix
+    and C is the true correlation matrix bewteen measurements.
+    """
+    # Time step between measurements 
+    dt = 1/(num_measurements - 1)
+
+    # Design matrix
+    A = np.zeros(shape=(num_measurements, 2))
+    for i in range(num_measurements):
+        A[i][0] = 1
+        A[i][1] = i
+
+    # Pure Poisson contribute to covariance
+    C_poisson = np.zeros(shape=(num_measurements, num_measurements))
+    for i in range(num_measurements):
+        for j in range(num_measurements):
+            C_poisson[i][j] = true_freq*dt*min(i,j)
+
+    # Gaussian read noise contribution to covariance
+    C_noise = np.zeros(shape=(num_measurements, num_measurements))
+    for i in range(num_measurements):
+        C_noise[i][i] = read_noise
+
+    result = inv(np.transpose(A) @ inv(C_noise + C_poisson) @ A)
+    print(f"Latency = {toc - tic}")
+
+    return result
