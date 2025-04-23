@@ -7,6 +7,7 @@ import statistics
 import argparse
 import json
 import scipy
+from src.simulate_lib import true_param_covariance
 
 
 parser = argparse.ArgumentParser()
@@ -160,6 +161,13 @@ print(f"2-sigma confidence interval = [{mean - 2*stderr}, {mean + 2*stderr}]")
 stdev_ratio = statistics.stdev(ols_slopes) / statistics.stdev(brandt_slopes)
 print(f"Ratio of OLS to Brandt spreads = {stdev_ratio}")
 output_data["ols_brandt_spread_ratio"] = stdev_ratio
+
+# Compute rms expected deviation between Brandt slope and true slope
+true_cov = true_param_covariance(true_freq=true_freq, read_noise=read_noise,
+                                 num_measurements=101)
+# Factor of 100 because Brandt estimates per time step, not per unit time.
+rms_formal_error = math.sqrt(true_cov[0][0]) / 100
+output_data["rms_slope_error"] = rms_formal_error
 
 json_object = json.dumps(output_data, indent=4)
 
