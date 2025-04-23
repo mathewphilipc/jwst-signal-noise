@@ -37,6 +37,5 @@ output_dir = "data/poisson_simulations/freq_" + str(freq) + "_read_noise_" + str
 print(f"Output directory = {output_dir}")
 output_file = output_dir + "/simulations.csv"
 if not os.path.exists(output_dir):
-    print("Creating directory...")
     os.makedirs(output_dir)
 df.to_csv(output_file)
