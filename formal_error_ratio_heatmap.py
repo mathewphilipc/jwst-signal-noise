@@ -12,8 +12,8 @@ import argparse
 import json
 import scipy
 
-true_freq_list = [1, 3, 10, 30, 100, 300, 1000, 10000]
-read_noise_list = [1, 3, 10, 30, 100, 300, 1000, 10000]
+true_freq_list = [1, 3, 10, 30, 100, 300]
+read_noise_list = [1, 3, 10, 30, 100, 300] # Highest read noise saturates
 grid = np.zeros((len(true_freq_list), len(read_noise_list)))
 for i in range(len(true_freq_list)):
     freq = true_freq_list[i]
@@ -24,9 +24,9 @@ for i in range(len(true_freq_list)):
         with open(input_file) as json_data:
             d = json.load(json_data)
             print(type(d))
-            brandt_stderr = d["brandt_stderr"]
+            brandt_stdev = d["brandt_stdev"]
             rms_slope_error = d["rms_slope_error"]
-            ratio = brandt_stderr / rms_slope_error
+            ratio = brandt_stdev / rms_slope_error
             print(f"Ratio = {ratio}")
             grid[i][j] = ratio
 
