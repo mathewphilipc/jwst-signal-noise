@@ -118,7 +118,4 @@ def true_param_covariance(true_freq, read_noise, num_measurements):
     for i in range(num_measurements):
         C_noise[i][i] = read_noise
 
-    result = inv(np.transpose(A) @ inv(C_noise + C_poisson) @ A)
-    print(f"Latency = {toc - tic}")
-
-    return result
+    return inv(np.transpose(A) @ inv(C_noise + C_poisson) @ A)
