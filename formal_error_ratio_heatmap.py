@@ -43,7 +43,7 @@ ax.set_xlabel("read noise")
 ax.set_ylabel("true rate")
 ax.set_title("Ratio of empirical Brandt spread to rms formal error vs true rates and read noises\n(ramp = 101 measurements in 1.0s)")
 
-fig.colorbar(im, ax=ax, label="your output metric")
+fig.colorbar(im, ax=ax, label="ratio of spreads")
 
 plt.tight_layout()
 
