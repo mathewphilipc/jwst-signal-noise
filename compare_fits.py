@@ -166,7 +166,7 @@ output_data["ols_brandt_spread_ratio"] = stdev_ratio
 true_cov = true_param_covariance(true_freq=true_freq, read_noise=read_noise,
                                  num_measurements=101)
 # Factor of 100 because Brandt estimates per time step, not per unit time.
-rms_formal_error = math.sqrt(true_cov[0][0]) / 100
+rms_formal_error = math.sqrt(true_cov[1][1]) / 100
 output_data["rms_slope_error"] = rms_formal_error
 
 json_object = json.dumps(output_data, indent=4)
