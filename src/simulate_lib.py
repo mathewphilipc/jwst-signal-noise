@@ -105,7 +105,7 @@ def true_param_covariance(true_freq, read_noise, num_measurements):
     A = np.zeros(shape=(num_measurements, 2))
     for i in range(num_measurements):
         A[i][0] = 1
-        A[i][1] = i
+        A[i][1] = i*dt
 
     # Pure Poisson contribute to covariance
     C_poisson = np.zeros(shape=(num_measurements, num_measurements))
