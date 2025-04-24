@@ -2,9 +2,10 @@ from fitramp.fitramp import Covar, Ramp_Result, fit_ramps
 from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 import random
 
-sigma_read = 20.9
+read_noise = 12.3
 
 #fits_image_filename = '../blanton-project/images/apR-a-28580010.fits'
 fits_image_filename = '../blanton-project/images/apR-a-28580052.fits'
@@ -45,9 +46,10 @@ print(f"New history shape = {image_history.shape}")
 naive_reconstruction = np.zeros((y_len, x_len))
 brandt_reconstruction = np.zeros((y_len, x_len))
 
-ols_sqre_history = []
-brandt_sqre_history = []
-brandt_native_chisq_history = []
+ols_sqre_list = []
+brandt_sqre_list = []
+ols_slope_list = []
+#brandt_native_chisq_history = []
 
 for i in range(x_len):
     for j in range(y_len):
@@ -58,36 +60,75 @@ for i in range(x_len):
         naive_reconstruction[j][i] = ols_fit_params[0]
         print(f"\nOLS estimated count rate slope = {ols_fit_params[0]}")
         ols_fit_intercept = ols_fit_params[1]
+        ols_slope_list.append(ols_fit_params[0])
+        print(f"\nOLS estimated intercept = {ols_fit_params[1]}")
 
         # Computed chi-squared
         predicted_values = X @ ols_fit_params
         residuals = pixel_history - predicted_values
-        sqre_squared_statistic = np.sum((residuals**2) / predicted_values)
-        print(f"OLS sqre = {sqre_squared_statistic}")
-        ols_sqre_history.append(sqre_squared_statistic)
+        sqre_statistic = math.sqrt(np.sum((residuals / predicted_values)**2))
+        print(f"OLS sqre = {sqre_statistic}")
+        ols_sqre_list.append(sqre_statistic)
 
-        my_covar = Covar([s for s in range(n)])
+        fit_intercept = True
+        old_read_times = [s for s in range(n)]
+        new_read_times = [s + 1 for s in range(n)]
+        my_covar = Covar(read_times=new_read_times, pedestal=fit_intercept)
         diffs = np.ndarray(shape=(n-1,1), dtype=np.int64)
         for t in range(1,len(diffs)+1):
             diffs[t-1] = pixel_history[t] - pixel_history[t-1]
-        ramp_result = fit_ramps(diffs = diffs, Cov = my_covar, sig=20.1, rescale=False)
+        if (fit_intercept):
+            diffs = np.insert(diffs, 0, pixel_history[0], axis=0)
+        ramp_result = fit_ramps(diffs = diffs, Cov = my_covar, sig=read_noise, rescale=True)
         brandt_fit_slope = ramp_result.countrate[0]
         print(f"Brandt estimated count rate = {brandt_fit_slope}")
+        brandt_fit_intercept = ramp_result.pedestal[0]
         brandt_reconstruction[j][i] = brandt_fit_slope
 
         # Computed chi-squared
-        predicted_values = X @ np.array([brandt_fit_slope, ols_fit_intercept])
+        # Here we bootstrapped an intercept, but this isn't actually optimal
+        # predicted_values = X @ np.array([brandt_fit_slope, ols_fit_intercept])
+        # But only using the Brandt slope gives wildly non-optimal results.
+        # Does Brandt really not look for an intercept??
+        # predicted_values = X @ np.array([brandt_fit_slope, 0])
+        predicted_values = X @ np.array([brandt_fit_slope, brandt_fit_intercept])
         print(f"predicted values has type {type(predicted_values)}")
         residuals = pixel_history - predicted_values
-        sqre_statistic = np.sum((residuals**2) / predicted_values)
+        sqre_statistic = math.sqrt(np.sum((residuals / predicted_values)**2))
         print(f"Brandt sqre = {sqre_statistic}")
         print(f"Brandt chi-squared = {ramp_result.chisq}")
-        brandt_sqre_history.append(sqre_squared_statistic)
-        brandt_native_chisq_history.append(ramp_result.chisq)
+        brandt_sqre_list.append(sqre_statistic)
+        #brandt_native_chisq_history.append(ramp_result.chisq)
 
-print(f"\n\n\nMean OLS sqre = {np.median(ols_sqre_history)}")
-print(f"\n\n\nMean brandt bootstrap sqre = {np.median(brandt_sqre_history)}")
-print(f"\n\n\nMean brandt native chi squared = {np.median(brandt_native_chisq_history)}\n\n\n")
+print(f"\n\n\nMean OLS sqre = {np.median(ols_sqre_list)}")
+print(f"\n\n\nMean brandt bootstrap sqre = {np.median(brandt_sqre_list)}")
+sqre_ratios = [(brandt_sqre_list[i] / ols_sqre_list[i]) for i in range(len(ols_sqre_list))]
+print(f"\n\n\nList of sqre ratios:")
+#print(sqre_ratios)
+print(f"\n\n\nmedian sqre_ratio = {np.median(sqre_ratios)}")
+print(f"\n\n\nmean sqre_ratio = {np.mean(sqre_ratios)}")
+print(f"\n\n\nmin sqrt_ratio = {np.min(sqre_ratios)}")
+#print(f"\n\n\nMean brandt native chi squared = {np.median(brandt_native_chisq_history)}\n\n\n")
+print(f"\n\n\nSorted list of ratios: {sorted(sqre_ratios)}")
+
+
+plt.hist(sqre_ratios, bins=100)
+plt.xlabel('Ratio of brandt vs OLS sqre ratios')
+plt.ylabel('Frequency')
+plt.title('Histogram of Data')
+plt.show()
+
+
+x = ols_slope_list
+y = sqre_ratios
+plt.scatter(x,y)
+plt.xlabel('OLS-fitted slope')
+plt.ylabel('ratio of sqres')
+plt.title('OLS-fitted slope vs ratio of (Brandt vs OLS) sqres')
+plt.show()
+
+
+
 
 
 #final_image = hdul[n].data[y_min:y_max, x_min:x_max].astype(np.int64)
@@ -101,7 +142,6 @@ difference_image = difference_image[20:80, 1920:1980]
 hdul.close()
 
 
-#print(final_image.shape)
 
 print("Plotting original subimage...")
 plt.imshow(difference_image, cmap='hot', interpolation='nearest')
@@ -114,15 +154,3 @@ plt.show()
 print("Plotting Brandt reconstructed subimage...")
 plt.imshow(brandt_reconstruction, cmap='hot', interpolation='nearest')
 plt.show()
-
-
-
-t = np.linspace(1,n-1,n-1)
-fig, ax = plt.subplots()
-ax.plot(t, diffs)
-ax.set(xlabel='time', ylabel='voltage',
-       title='Voltage over time for top-left pixel')
-ax.grid()
-fig.savefig("test.png")
-plt.show()
-
