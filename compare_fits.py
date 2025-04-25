@@ -63,6 +63,7 @@ output_file = input_dir + "/summary.json"
 
 df = pd.read_csv(input_file, index_col=0)
 num_exps = len(df.columns)
+num_exps = 100
 ols_slopes = []
 ols_intercepts = []
 brandt_slopes = []
