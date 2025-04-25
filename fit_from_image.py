@@ -42,8 +42,8 @@ print(f"New history shape = {image_history.shape}")
 naive_reconstruction = np.zeros((y_len, x_len))
 brandt_reconstruction = np.zeros((y_len, x_len))
 
-ols_sqre_list = []
-brandt_sqre_list = []
+ols_ssre_list = []
+brandt_ssre_list = []
 ols_slope_list = []
 
 for i in range(x_len):
@@ -59,9 +59,9 @@ for i in range(x_len):
         # Computed sum of squared relative errors for OLS
         predicted_values = X @ ols_fit_params
         residuals = pixel_history - predicted_values
-        sqre_statistic = math.sqrt(np.sum((residuals)**2))
-        print(f"OLS sqre = {sqre_statistic}")
-        ols_sqre_list.append(sqre_statistic)
+        ssre_statistic = math.sqrt(np.sum((residuals / pixel_history)**2))
+        print(f"OLS ssre = {ssre_statistic}")
+        ols_ssre_list.append(ssre_statistic)
 
         fit_intercept = True
         my_covar = Covar(read_times=[s + 1 for s in range(n)], pedestal=fit_intercept)
@@ -79,35 +79,33 @@ for i in range(x_len):
         # Computed sum of squared relative errors for Brandt
         predicted_values = X @ np.array([brandt_fit_slope, brandt_fit_intercept])
         residuals = pixel_history - predicted_values
-        sqre_statistic = math.sqrt(np.sum((residuals)**2))
-        print(f"Brandt sqre = {sqre_statistic}")
-        brandt_sqre_list.append(sqre_statistic)
+        ssre_statistic = math.sqrt(np.sum((residuals / pixel_history)**2))
+        print(f"Brandt ssre = {ssre_statistic}")
+        brandt_ssre_list.append(ssre_statistic)
 
-print(f"\n\n\nMean OLS sqre = {np.median(ols_sqre_list)}")
-print(f"\n\n\nMean brandt bootstrap sqre = {np.median(brandt_sqre_list)}")
-sqre_ratios = [(brandt_sqre_list[i] / ols_sqre_list[i]) for i in range(len(ols_sqre_list))]
-print(f"\n\n\nList of sqre ratios:")
-#print(sqre_ratios)
-print(f"\n\n\nmedian sqre_ratio = {np.median(sqre_ratios)}")
-print(f"\n\n\nmean sqre_ratio = {np.mean(sqre_ratios)}")
-print(f"\n\n\nmin sqrt_ratio = {np.min(sqre_ratios)}")
-#print(f"\n\n\nMean brandt native chi squared = {np.median(brandt_native_chisq_history)}\n\n\n")
-print(f"\n\n\nSorted list of ratios: {sorted(sqre_ratios)}")
+print(f"\n\n\nMean OLS ssre = {np.median(ols_ssre_list)}")
+print(f"\n\n\nMean brandt bootstrap ssre = {np.median(brandt_ssre_list)}")
+ssre_ratios = [(brandt_ssre_list[i] / ols_ssre_list[i]) for i in range(len(ols_ssre_list))]
+print(f"\n\n\nList of ssre ratios:")
+print(f"\n\n\nmedian ssre_ratio = {np.median(ssre_ratios)}")
+print(f"\n\n\nmean ssre_ratio = {np.mean(ssre_ratios)}")
+print(f"\n\n\nmin sqrt_ratio = {np.min(ssre_ratios)}")
+print(f"\n\n\nSorted list of ratios: {sorted(ssre_ratios)}")
 
 
 plt.hist(sqre_ratios, bins=100)
-plt.xlabel('Ratio of brandt vs OLS sqre ratios')
+plt.xlabel('Ratio of brandt vs OLS ssre ratios')
 plt.ylabel('Frequency')
 plt.title('Histogram of Data')
 plt.show()
 
 
 x = ols_slope_list
-y = sqre_ratios
+y = ssre_ratios
 plt.scatter(x,y)
 plt.xlabel('OLS-fitted slope')
-plt.ylabel('ratio of sqres')
-plt.title('OLS-fitted slope vs ratio of (Brandt vs OLS) sqres')
+plt.ylabel('ratio of ssres')
+plt.title('OLS-fitted slope vs ratio of (Brandt vs OLS) ssres')
 plt.show()
 
 
