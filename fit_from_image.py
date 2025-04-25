@@ -22,13 +22,10 @@ n = 47
 # An interesting subimage to plot
 [y_min, y_max]=[20, 80]
 [x_min, x_max] = [1920,1980]
-#[y_min, y_max] = [0, 500]
-#[x_min, x_max] = [1750, 2250]
 
 y_len = y_max - y_min
 x_len = x_max - x_min
 
-#image_history = np.zeros((n,y_max - y_min + 1, x_min - x_min + 1)).astype(np.int64)
 image_history = []
 
 print("Studying images...")
@@ -40,7 +37,6 @@ for i in range(1,n+1):
 
 image_history = np.asarray(image_history).astype(np.int64)
 print(f"Original history shape = {image_history.shape}")
-#image_history = image_history[:, y_min:y_max, x_min:x_max]
 print(f"New history shape = {image_history.shape}")
 
 naive_reconstruction = np.zeros((y_len, x_len))
@@ -49,7 +45,6 @@ brandt_reconstruction = np.zeros((y_len, x_len))
 ols_sqre_list = []
 brandt_sqre_list = []
 ols_slope_list = []
-#brandt_native_chisq_history = []
 
 for i in range(x_len):
     for j in range(y_len):
@@ -59,11 +54,9 @@ for i in range(x_len):
         ols_fit_params = np.linalg.lstsq(X, pixel_history, rcond=None)[0] # (2,) nparr containing [slope, intercept]
         naive_reconstruction[j][i] = ols_fit_params[0]
         print(f"\nOLS estimated count rate slope = {ols_fit_params[0]}")
-        ols_fit_intercept = ols_fit_params[1]
         ols_slope_list.append(ols_fit_params[0])
-        print(f"\nOLS estimated intercept = {ols_fit_params[1]}")
 
-        # Computed chi-squared
+        # Computed sum of squared relative errors for OLS
         predicted_values = X @ ols_fit_params
         residuals = pixel_history - predicted_values
         sqre_statistic = math.sqrt(np.sum((residuals / predicted_values)**2))
@@ -71,9 +64,7 @@ for i in range(x_len):
         ols_sqre_list.append(sqre_statistic)
 
         fit_intercept = True
-        old_read_times = [s for s in range(n)]
-        new_read_times = [s + 1 for s in range(n)]
-        my_covar = Covar(read_times=new_read_times, pedestal=fit_intercept)
+        my_covar = Covar(read_times=[s + 1 for s in range(n)], pedestal=fit_intercept)
         diffs = np.ndarray(shape=(n-1,1), dtype=np.int64)
         for t in range(1,len(diffs)+1):
             diffs[t-1] = pixel_history[t] - pixel_history[t-1]
@@ -85,20 +76,12 @@ for i in range(x_len):
         brandt_fit_intercept = ramp_result.pedestal[0]
         brandt_reconstruction[j][i] = brandt_fit_slope
 
-        # Computed chi-squared
-        # Here we bootstrapped an intercept, but this isn't actually optimal
-        # predicted_values = X @ np.array([brandt_fit_slope, ols_fit_intercept])
-        # But only using the Brandt slope gives wildly non-optimal results.
-        # Does Brandt really not look for an intercept??
-        # predicted_values = X @ np.array([brandt_fit_slope, 0])
+        # Computed sum of squared relative errors for Brandt
         predicted_values = X @ np.array([brandt_fit_slope, brandt_fit_intercept])
-        print(f"predicted values has type {type(predicted_values)}")
         residuals = pixel_history - predicted_values
         sqre_statistic = math.sqrt(np.sum((residuals / predicted_values)**2))
         print(f"Brandt sqre = {sqre_statistic}")
-        print(f"Brandt chi-squared = {ramp_result.chisq}")
         brandt_sqre_list.append(sqre_statistic)
-        #brandt_native_chisq_history.append(ramp_result.chisq)
 
 print(f"\n\n\nMean OLS sqre = {np.median(ols_sqre_list)}")
 print(f"\n\n\nMean brandt bootstrap sqre = {np.median(brandt_sqre_list)}")
@@ -131,8 +114,6 @@ plt.show()
 
 
 
-#final_image = hdul[n].data[y_min:y_max, x_min:x_max].astype(np.int64)
-#initial_image = hdul[1].data[y_min:y_max, x_min:x_max].astype(np.int64)
 final_image = hdul[n].data.astype(np.int64)
 initial_image = hdul[1].data.astype(np.int64)
 
