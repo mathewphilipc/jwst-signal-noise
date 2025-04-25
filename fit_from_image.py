@@ -59,7 +59,7 @@ for i in range(x_len):
         # Computed sum of squared relative errors for OLS
         predicted_values = X @ ols_fit_params
         residuals = pixel_history - predicted_values
-        sqre_statistic = math.sqrt(np.sum((residuals / predicted_values)**2))
+        sqre_statistic = math.sqrt(np.sum((residuals)**2))
         print(f"OLS sqre = {sqre_statistic}")
         ols_sqre_list.append(sqre_statistic)
 
@@ -79,7 +79,7 @@ for i in range(x_len):
         # Computed sum of squared relative errors for Brandt
         predicted_values = X @ np.array([brandt_fit_slope, brandt_fit_intercept])
         residuals = pixel_history - predicted_values
-        sqre_statistic = math.sqrt(np.sum((residuals / predicted_values)**2))
+        sqre_statistic = math.sqrt(np.sum((residuals)**2))
         print(f"Brandt sqre = {sqre_statistic}")
         brandt_sqre_list.append(sqre_statistic)
 
