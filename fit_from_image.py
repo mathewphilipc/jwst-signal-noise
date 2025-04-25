@@ -93,19 +93,29 @@ print(f"\n\n\nmin sqrt_ratio = {np.min(ssre_ratios)}")
 print(f"\n\n\nSorted list of ratios: {sorted(ssre_ratios)}")
 
 
-plt.hist(sqre_ratios, bins=100)
-plt.xlabel('Ratio of brandt vs OLS ssre ratios')
+plt.hist(ssre_ratios, bins=100)
+plt.title('Frequency histogram of Brandt:OLS sum squared relative error ratio')
 plt.ylabel('Frequency')
-plt.title('Histogram of Data')
+plt.xlabel('SSRE ratio')
+plt.savefig(
+    "data/plots/ssre_ratio_frequency.png",
+    dpi=300,
+    bbox_inches="tight"
+)
 plt.show()
 
 
 x = ols_slope_list
 y = ssre_ratios
 plt.scatter(x,y)
-plt.xlabel('OLS-fitted slope')
-plt.ylabel('ratio of ssres')
-plt.title('OLS-fitted slope vs ratio of (Brandt vs OLS) ssres')
+plt.xlabel('OLS-estimated rate')
+plt.ylabel('Ratio of SSREs')
+plt.title('Brandt:OLS sum squared relative error ratio vs OLS-estimated rate')
+plt.savefig(
+    "data/plots/ssre_ratio_versus_rate.png",
+    dpi=300,
+    bbox_inches="tight"
+)
 plt.show()
 
 
