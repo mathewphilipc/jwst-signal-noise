@@ -119,3 +119,66 @@ def true_param_covariance(true_freq, read_noise, num_measurements):
         C_noise[i][i] = read_noise
 
     return inv(np.transpose(A) @ inv(C_noise + C_poisson) @ A)
+
+def poisson_chisq(history, intercept, slope, read_noise):
+    """
+    Given a history of measurements up the ramp of a multiaccum process, a
+    fitted slope and intercept, and a read noise, computes chisq (that is, -1/2
+    of the log(likelihood)) for the fit. Note that several contributions to
+    chisq are directly functions only of the covariance matrix, not of the
+    intercept and slope, and thus are constants sometimes thrown away when
+    extremizing w.r.t. intercept and slope. We retain these explicitly.
+
+    Parameters:
+    history (list): List of floats corresponding to measurements up the ramp.
+    intercept (float): Fitted intercepted.
+    slope (float): Fitted slope.
+    read_noise (float): Read noise.
+
+    Returns:
+    float: The fit's chi squared value.
+    """
+    N = len(history)
+    hist_arr = (np.array(history, dtype=float))[:, np.newaxis]
+
+    # Negative slopes are nonsense. Hacky solution is to replace them with 0.
+    slope = max(slope,0)
+
+    # Design matrix (assuming time units where one time step is unity).
+    A = np.zeros(shape=(N, 2))
+    for i in range(N):
+        A[i][0] = 1
+        A[i][1] = i
+    x = np.array([[intercept], [slope]])
+
+    # Covariance matrix
+    # Pure Poisson contribute to covariance
+    C_poisson = np.zeros(shape=(N, N))
+    for i in range(N):
+        for j in range(N):
+            C_poisson[i][j] = slope*min(i,j)
+
+    # Gaussian read noise contribution to covariance
+    C_noise = np.zeros(shape=(N, N))
+    for i in range(N):
+        C_noise[i][i] = read_noise
+
+    C =  C_poisson + C_noise
+
+    #currdet = np.linalg.det(C)
+    #print(f"Covariance det = {currdet}")
+    # if (currdet < 0):
+    #    eigenvalues, eigenvectors = np.linalg.eig(C)
+    #    print(eigenvalues)
+    #print(f"\n\n\n\nA has shape {A.shape}")
+    #print(f"x has shape {x.shape}")
+    #print(f"Ax has shape {(A@x).shape}")
+    #print(f"data has shape {hist_arr.shape}")
+    #print(f"\n\n\n\n(Ax - hist)^T = {(np.transpose(hist_arr - A@x)).shape}")
+    #print(f"Second shape = {C.shape}")
+    #print(f"Third shape = {(hist_arr - A@x).shape}")
+    #print(f"Overall shape = {(np.transpose(hist_arr - A@x)@C@(hist_arr - A@x)).shape}")
+
+
+    result = (np.transpose(hist_arr - A@x)@C@(hist_arr - A@x))[0][0] + np.log(np.linalg.det(C)) + N*np.log(np.pi)
+    return result
