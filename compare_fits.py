@@ -32,6 +32,7 @@ args = parser.parse_args()
 true_freq = args.truefreq
 read_noise = args.readnoise
 plot_distributions = args.plot_distributions
+print(f"Comparing fits for true_freq={true_freq} and read_noise={read_noise}")
 
 # Estimate slope naively
 def fit_naive_slope(data):
@@ -41,9 +42,9 @@ def fit_naive_slope(data):
 
 # Estimate slope by OLS
 def fit_ols_slope_and_chisq(data):
-    n = len(curr_data)
+    n = len(data)
     X = np.vstack([np.linspace(1, n, n), np.ones(n)]).T
-    ols_fit_params = np.linalg.lstsq(X, curr_data, rcond=None)[0] # (2,) nparr containing [slope, intercept]
+    ols_fit_params = np.linalg.lstsq(X, data, rcond=None)[0] # (2,) nparr containing [slope, intercept]
     slope = float(ols_fit_params[0])
     intercept = float(ols_fit_params[1])
     chisq = poisson_chisq(history=data, intercept=intercept, slope=slope, read_noise=read_noise)
@@ -51,11 +52,11 @@ def fit_ols_slope_and_chisq(data):
 
 # Estimate slope naively
 def fit_brandt_slope_and_chisq(data):
-    n = len(curr_data)
+    n = len(data)
     my_covar = Covar([s for s in range(n)])
     diffs = np.ndarray(shape=(n-1,1), dtype=np.int64)
     for t in range(1,len(diffs)+1):
-        diffs[t-1] = curr_data[t] - curr_data[t-1]
+        diffs[t-1] = data[t] - data[t-1]
     #sig = 20.1 for JWST images
     ramp_result = fit_ramps(diffs = diffs, Cov = my_covar, sig=float(read_noise), rescale=True)
     slope = ramp_result.countrate[0]
