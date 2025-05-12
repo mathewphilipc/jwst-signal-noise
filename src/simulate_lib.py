@@ -161,10 +161,8 @@ def poisson_chisq(history, intercept, slope, read_noise):
     # Gaussian read noise contribution to covariance
     C_noise = np.zeros(shape=(N, N))
     for i in range(N):
-        C_noise[i][i] = read_noise
+        C_noise[i][i] = read_noise**2
 
     C =  C_poisson + C_noise
 
-
-    result = (np.transpose(hist_arr - A@x)@C@(hist_arr - A@x))[0][0] + np.log(np.linalg.det(C)) + N*np.log(np.pi)
-    return result
+    return (np.transpose(hist_arr - A@x)@inv(C)@(hist_arr - A@x))[0][0]
