@@ -165,20 +165,6 @@ def poisson_chisq(history, intercept, slope, read_noise):
 
     C =  C_poisson + C_noise
 
-    #currdet = np.linalg.det(C)
-    #print(f"Covariance det = {currdet}")
-    # if (currdet < 0):
-    #    eigenvalues, eigenvectors = np.linalg.eig(C)
-    #    print(eigenvalues)
-    #print(f"\n\n\n\nA has shape {A.shape}")
-    #print(f"x has shape {x.shape}")
-    #print(f"Ax has shape {(A@x).shape}")
-    #print(f"data has shape {hist_arr.shape}")
-    #print(f"\n\n\n\n(Ax - hist)^T = {(np.transpose(hist_arr - A@x)).shape}")
-    #print(f"Second shape = {C.shape}")
-    #print(f"Third shape = {(hist_arr - A@x).shape}")
-    #print(f"Overall shape = {(np.transpose(hist_arr - A@x)@C@(hist_arr - A@x)).shape}")
-
 
     result = (np.transpose(hist_arr - A@x)@C@(hist_arr - A@x))[0][0] + np.log(np.linalg.det(C)) + N*np.log(np.pi)
     return result
