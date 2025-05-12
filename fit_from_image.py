@@ -1,9 +1,8 @@
-from fitramp.fitramp import Covar, Ramp_Result, fit_ramps
+from fitramp.fitramp import Covar, fit_ramps
 from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-import random
 
 read_noise = 12.3
 

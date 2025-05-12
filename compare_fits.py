@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from fitramp.fitramp import Covar, Ramp_Result, fit_ramps
+from fitramp.fitramp import Covar, fit_ramps
 import matplotlib.pyplot as plt
 import math
 import statistics

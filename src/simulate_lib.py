@@ -1,5 +1,3 @@
-import argparse
-import random
 import numpy as np
 from numpy.linalg import inv
 

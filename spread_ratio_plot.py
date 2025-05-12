@@ -1,12 +1,6 @@
-import pandas as pd
 import numpy as np
-from fitramp.fitramp import Covar, Ramp_Result, fit_ramps
 import matplotlib.pyplot as plt
-import math
-import statistics
-import argparse
 import json
-import scipy
 
 true_freq_list = [1, 3, 10, 30, 100, 300, 1000, 10000]
 read_noise_list = [1, 3, 10, 30, 100, 300, 1000, 10000]

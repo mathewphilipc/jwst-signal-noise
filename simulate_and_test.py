@@ -5,7 +5,7 @@ import numpy as np
 from fitramp.fitramp import Covar, fit_ramps
 import matplotlib.pyplot as plt
 import argparse
-from src.simulate_lib import true_param_covariance, poisson_chisq
+from src.simulate_lib import poisson_chisq
 
 parser = argparse.ArgumentParser()
 

@@ -1,10 +1,8 @@
 print("lets extract read noise")
 
-from fitramp.fitramp import Covar, Ramp_Result, fit_ramps
 from astropy.io import fits
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 
 fits_image_filename = '../blanton-project/images/apR-a-28580052.fits'
 hdul = fits.open(fits_image_filename)
